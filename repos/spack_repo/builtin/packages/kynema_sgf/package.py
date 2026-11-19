@@ -36,6 +36,7 @@ class KynemaSgf(CMakePackage, CudaPackage, ROCmPackage):
     variant("netcdf", default=False, description="Enable NetCDF support")
     variant("openfast", default=False, description="Enable OpenFAST integration")
     variant("kynema-fmb", default=False, description="Enable Kynema integration")
+    variant("tioga", default=False, description="Build the external Tioga bridge", when="@main")
     variant("openmp", default=False, description="Enable OpenMP for CPU builds")
     variant("pic", default=True, description="Position independent code")
     variant("shared", default=True, description="Build shared libraries")
@@ -79,6 +80,7 @@ class KynemaSgf(CMakePackage, CudaPackage, ROCmPackage):
     depends_on("openfast+cxx@3.5.0:3.5.9,4.1:", when="+openfast")
     depends_on("openfast+netcdf", when="+openfast+netcdf")
     depends_on("kynema-fmb", when="+kynema-fmb")
+    depends_on("tioga~nodegid", when="+tioga")
     depends_on("helics@:3.3.2", when="+helics")
     depends_on("helics@:3.3.2+mpi", when="+helics+mpi")
     depends_on("fftw", when="+waves2amr")
@@ -88,6 +90,7 @@ class KynemaSgf(CMakePackage, CudaPackage, ROCmPackage):
 
     requires("+mpi", when="+kynema-fmb")
     requires("+mpi", when="+openfast")
+    requires("+mpi", when="+tioga")
 
     for arch in CudaPackage.cuda_arch_values:
         depends_on("hypre+cuda cuda_arch=%s" % arch, when="+cuda+hypre cuda_arch=%s" % arch)
@@ -133,6 +136,8 @@ class KynemaSgf(CMakePackage, CudaPackage, ROCmPackage):
         args = [self.define_from_variant("KYNEMA_SGF_ENABLE_%s" % v.upper(), v) for v in vs]
 
         args.append(self.define_from_variant("KYNEMA_SGF_ENABLE_KYNEMA_FMB", "kynema-fmb"))
+        if "tioga" in spec.variants:
+            args.append(self.define_from_variant("KYNEMA_SGF_ENABLE_TIOGA", "tioga"))
         args.append(self.define_from_variant("BUILD_SHARED_LIBS", "shared"))
 
         if spec.satisfies("+mpi"):

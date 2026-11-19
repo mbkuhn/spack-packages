@@ -63,8 +63,10 @@ class KynemaDriver(CMakePackage, CudaPackage, ROCmPackage):
 
     depends_on("kynema-ugf+hypre+openfast+tioga")
     depends_on("kynema-sgf+netcdf+mpi+tiny_profile")
+    depends_on("kynema-sgf+tioga", when="@main")
     depends_on("trilinos")
     depends_on("yaml-cpp@0.6:")
+    depends_on("nlohmann-json@3.11:", when="@main")
     depends_on("tioga~nodegid")
     depends_on("openfast+cxx@2.6.0:")
     depends_on("kynema-ugf+kynema-fmb", when="+kynema-fmb")
